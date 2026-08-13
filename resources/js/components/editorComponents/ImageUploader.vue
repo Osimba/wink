@@ -8,6 +8,7 @@
                 imageUrl: null,
                 layout: 'default',
                 caption: '',
+                altText: '',
                 imagePickerKey: '',
                 uploadProgress: 0,
                 uploading: false,
@@ -22,6 +23,7 @@
             this.$parent.$on('openingImageUploader', data => {
                 if (data) {
                     this.caption = data.caption;
+                    this.altText = data.alt || '';
                     this.imageUrl = data.url;
                     this.layout = data.layout || 'default';
                     this.existingBlot = data.existingBlot;
@@ -45,6 +47,8 @@
                 this.layout = 'default';
 
                 this.caption = '';
+
+                this.altText = '';
             },
 
 
@@ -64,6 +68,7 @@
                 this.$emit('updated', {
                     url: this.imageUrl,
                     caption: this.caption,
+                    alt: this.altText,
                     existingBlot: this.existingBlot,
                     layout: this.layout,
                 });
@@ -91,6 +96,12 @@
             <div class="input-group">
                 <label class="input-label">Caption</label>
                 <textarea rows="2" v-model="caption" ref="caption" class="input" placeholder="Add caption to the image"></textarea>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Alt text</label>
+                <textarea rows="2" v-model="altText" class="input" placeholder="Describe the image for screen readers and search engines"></textarea>
+                <p class="text-xs mt-1">Sets the image's <code>alt</code> attribute (accessibility &amp; SEO). Leave blank to reuse the caption.</p>
             </div>
 
             <div class="input-group">
