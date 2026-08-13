@@ -10,7 +10,14 @@ class WinkImageBlot extends BlockEmbed {
         node.setAttribute('contenteditable', false);
         node.dataset.layout = value.layout;
 
-        img.setAttribute('alt', value.caption);
+        // Alt text is stored independently of the visible caption. When no
+        // dedicated alt text is provided we fall back to the caption so existing
+        // posts and quick uploads still get a meaningful alt attribute.
+        let alt = (value.alt !== undefined && value.alt !== null && value.alt !== '')
+            ? value.alt
+            : (value.caption || '');
+
+        img.setAttribute('alt', alt);
         img.setAttribute('src', value.url);
         node.appendChild(img);
 
@@ -25,10 +32,14 @@ class WinkImageBlot extends BlockEmbed {
 
     static value(node) {
         let img = node.querySelector('img');
+        let caption = node.querySelector('p');
 
         return {
             layout: node.dataset.layout,
-            caption: img.getAttribute('alt'),
+            // The visible caption comes from the appended <p>, not the alt
+            // attribute, so the two fields stay independent when editing.
+            caption: caption ? caption.innerHTML : '',
+            alt: img.getAttribute('alt') || '',
             url: img.getAttribute('src')
         };
     }
