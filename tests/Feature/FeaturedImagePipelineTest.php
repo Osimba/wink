@@ -8,21 +8,15 @@ use Wink\Tests\TestCase;
 class FeaturedImagePipelineTest extends TestCase
 {
     /**
-     * Mean RGB of the reference script's output for the fixture, from
+     * Mean RGB of the reference script's output for the fixture (the Pexels
+     * stars photo, re-saved as JPEG from the AVIF Pexels served), from
      * `python3 tests/fixtures/generate_reference.py path/to/grade.py`.
-     *
-     * TODO: fill these in once tests/fixtures/featured-fixture.jpg (the Pexels
-     * stars photo) is added. The test is skipped until then.
      */
-    private const EXPECTED_MEAN_RGB = null; // e.g. [123.45, 120.10, 118.02]
+    private const EXPECTED_MEAN_RGB = [68.27, 81.11, 118.12];
 
     public function test_the_pipeline_matches_the_reference_mean_rgb_within_two()
     {
         $fixture = __DIR__.'/../fixtures/featured-fixture.jpg';
-
-        if (! file_exists($fixture) || self::EXPECTED_MEAN_RGB === null) {
-            $this->markTestSkipped('Add tests/fixtures/featured-fixture.jpg and its expected mean RGB.');
-        }
 
         $bytes = file_get_contents($fixture);
         $processor = FeaturedImageProcessor::fromConfig();
