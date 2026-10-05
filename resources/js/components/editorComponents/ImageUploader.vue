@@ -117,7 +117,8 @@
                       class="mt-5"
                       @changed="updateImage"
                       @progressing="updateProgress"
-                      @uploading="uploading = true"></image-picker>
+                      @uploading="uploading = true"
+                      @failed="uploading = false"></image-picker>
 
         <button class="btn-sm btn-primary mt-10" @click="applyImage">Apply</button>
         <button class="btn-sm btn-light mt-10" @click="close">Cancel</button>

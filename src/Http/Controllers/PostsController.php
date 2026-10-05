@@ -78,6 +78,11 @@ class PostsController
             'author_id' => request('author_id'),
             'featured_image' => request('featured_image'),
             'featured_image_caption' => request('featured_image_caption', ''),
+            'featured_image_original' => request('featured_image_original'),
+            'featured_image_source_url' => request('featured_image_source_url'),
+            'featured_image_credit' => request('featured_image_credit'),
+            'featured_image_alt' => request('featured_image_alt'),
+            'featured_image_meta' => request('featured_image_meta'),
             'publish_date' => request('publish_date', ''),
             'meta' => request('meta', (object) []),
         ];
@@ -87,6 +92,12 @@ class PostsController
             'author_id' => 'required',
             'title' => 'required',
             'slug' => 'required|'.Rule::unique(config('wink.database_connection').'.wink_posts', 'slug')->ignore(request('id')),
+            'featured_image_original' => 'nullable|string|max:255',
+            'featured_image_source_url' => 'nullable|url|max:2048',
+            'featured_image_credit' => 'nullable|string|max:255',
+            'featured_image_alt' => 'nullable|string|max:255',
+            'featured_image_meta' => 'nullable|array',
+            'meta.page_title' => 'nullable|string|max:255',
         ])->validate();
 
         $entry = $id !== 'new' ? WinkPost::findOrFail($id) : new WinkPost(['id' => request('id')]);

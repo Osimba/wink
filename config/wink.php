@@ -32,6 +32,56 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Remote Images
+    |--------------------------------------------------------------------------
+    |
+    | Authors may import an image by pasting its URL instead of uploading a
+    | file. The server downloads it, so private and reserved addresses are
+    | always refused. Only JPEG, PNG and WebP images are accepted.
+    |
+    */
+
+    'remote_images' => [
+        'enabled' => env('WINK_REMOTE_IMAGES', true),
+        'timeout' => 10,
+        'max_bytes' => 15 * 1024 * 1024,
+        'max_redirects' => 3,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Featured Images
+    |--------------------------------------------------------------------------
+    |
+    | Featured images are cropped to one ratio, resized, optionally given the
+    | house grade, and encoded as WebP with metadata stripped. Originals are
+    | kept privately so a post's image can be re-cropped later. The grade
+    | constants mirror the reference Pillow script; tune them here.
+    |
+    */
+
+    'featured_image' => [
+        'width' => 1200,
+        'height' => 520,
+        'variants' => [800],
+        'quality' => 82,
+        'preview_width' => 600,
+        'originals_path' => env('WINK_ORIGINALS_PATH', 'wink/originals'),
+        'driver' => env('WINK_IMAGE_DRIVER', 'auto'), // auto, imagick or gd
+
+        'grade' => [
+            'default' => true,
+            'target_luma' => 132,
+            'clamp' => [0.75, 1.35],
+            'saturation' => 0.82,
+            'navy' => [14, 34, 52],
+            'navy_strength' => 0.07,
+            'contrast' => 1.06,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Wink Domain
     |--------------------------------------------------------------------------
     |

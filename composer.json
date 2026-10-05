@@ -11,11 +11,23 @@
     ],
     "require": {
         "php": "^7.3||^7.4||^8.0",
+        "ext-curl": "*",
         "laravel/framework": "^7.0||^8.0||^9.0|^10.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0"
+    },
+    "suggest": {
+        "ext-imagick": "Faster featured image processing (falls back to GD)."
     },
     "autoload": {
         "psr-4": {
             "Wink\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Wink\\Tests\\": "tests/"
         }
     },
     "extra": {

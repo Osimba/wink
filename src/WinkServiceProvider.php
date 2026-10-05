@@ -104,6 +104,10 @@ class WinkServiceProvider extends ServiceProvider
             __DIR__.'/../config/wink.php', 'wink'
         );
 
+        $this->app->bind(Support\RemoteImageFetcher::class, function () {
+            return Support\RemoteImageFetcher::fromConfig();
+        });
+
         $this->commands([
             Console\InstallCommand::class,
             Console\MigrateCommand::class,

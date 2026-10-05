@@ -1,8 +1,12 @@
 <script type="text/ecmascript">
+    import _ from 'lodash';
     import axios from 'axios';
 
     export default {
-        props: [],
+        props: {
+            // Hand the chosen file or URL to the parent instead of uploading it.
+            prepare: {type: Boolean, default: false},
+        },
 
         data() {
             return {
@@ -18,6 +22,10 @@
                 unsplashImages: [],
 
                 cropperModalShown: false,
+
+                urlFormShown: false,
+                remoteUrl: '',
+                importing: false,
             }
         },
 
@@ -68,7 +76,51 @@
             loadSelectedImage(event){
                 this.file = event.target.files[0];
 
+                if (this.prepare) {
+                    return this.$emit('source', {file: this.file});
+                }
+
                 this.showCropperModal();
+            },
+
+
+            /**
+             * Show the URL field.
+             */
+            showUrlForm() {
+                this.urlFormShown = true;
+
+                this.$nextTick(() => {
+                    this.$refs.remoteUrl.focus();
+                });
+            },
+
+
+            /**
+             * Import the image at the pasted URL.
+             */
+            importFromUrl() {
+                let url = this.remoteUrl.trim();
+
+                if (!url) {
+                    return;
+                }
+
+                if (this.prepare) {
+                    return this.$emit('source', {url});
+                }
+
+                this.importing = true;
+                this.$emit('uploading');
+
+                this.http().post('/api/uploads/from-url', {url}).then(response => {
+                    this.importing = false;
+                    this.$emit('changed', {url: response.data.url, caption: ''});
+                }).catch(error => {
+                    this.importing = false;
+                    this.$emit('failed');
+                    this.alertError(_.get(error, 'response.data.errors.url[0]', 'The image could not be imported.'));
+                });
             },
 
             /**
@@ -88,6 +140,18 @@
              * Select an unsplash Image.
              */
             closeUnplashModalAndInsertImage() {
+                if (this.prepare) {
+                    let image = this.selectedUnsplashImage;
+
+                    this.closeUnsplashModal();
+
+                    return this.$emit('source', {
+                        url: image.urls.raw + '&w=2400&fm=jpg&q=85',
+                        sourceUrl: image.links.html,
+                        credit: 'Photo by ' + image.user.name + ' on Unsplash',
+                    });
+                }
+
                 this.$emit('changed', {
                     url: this.selectedUnsplashImage.urls.regular,
                     caption: 'Photo by <a href="' + this.selectedUnsplashImage.user.links.html + '">' + this.selectedUnsplashImage.user.name + '</a> on <a href="https://unsplash.com">Unsplash</a>',
@@ -140,10 +204,21 @@
         <input type="file" class="hidden" :id="'imageUpload'+_uid" accept="image/*" v-on:change="loadSelectedImage">
 
         <div class="mb-0">
-            Please <label :for="'imageUpload'+_uid" class="cursor-pointer underline">upload</label> an image
+            Please <label :for="'imageUpload'+_uid" class="cursor-pointer underline">upload</label> an image<span v-if="Wink.remote_images && Wink.unsplash_key">,</span>
+            <span v-if="Wink.remote_images && !Wink.unsplash_key">or</span>
+            <a v-if="Wink.remote_images" href="#" @click.prevent="showUrlForm" class="text-text-color">paste a URL</a>
             <span v-if="Wink.unsplash_key">or</span>
             <a v-if="Wink.unsplash_key" href="#" @click.prevent="openUnsplashModal" class="text-text-color">search Unsplash</a>
         </div>
+
+        <form v-if="urlFormShown" class="flex items-center mt-4" @submit.prevent="importFromUrl">
+            <input type="url" class="input mr-2"
+                   ref="remoteUrl"
+                   v-model="remoteUrl"
+                   :disabled="importing"
+                   placeholder="https://example.com/photo.jpg">
+            <button type="submit" class="btn-sm btn-primary" :disabled="importing || !remoteUrl">Import</button>
+        </form>
 
         <fullscreen-modal v-if="unsplashModalShown">
             <div class="bg-contrast z-50 fixed pin overflow-y-scroll">
