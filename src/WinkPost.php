@@ -19,6 +19,13 @@ use League\CommonMark\GithubFlavoredMarkdownConverter;
  * @property CarbonInterface $publish_date
  * @property string|null $featured_image
  * @property string $featured_image_caption
+ * @property string|null $featured_image_original
+ * @property string|null $featured_image_source_url
+ * @property string|null $featured_image_credit
+ * @property string|null $featured_image_alt
+ * @property array<mixed>|null $featured_image_meta
+ * @property-read string|null $featured_image_srcset
+ * @property-read string $page_title
  * @property string $author_id
  * @property CarbonInterface $updated_at
  * @property CarbonInterface $created_at
@@ -71,6 +78,7 @@ class WinkPost extends AbstractWinkModel
      */
     protected $casts = [
         'meta' => 'array',
+        'featured_image_meta' => 'array',
         'published' => 'boolean',
         'markdown' => 'boolean',
         'publish_date' => 'datetime',
@@ -112,6 +120,36 @@ class WinkPost extends AbstractWinkModel
         ]);
 
         return new HtmlString($converter->convertToHtml($this->body));
+    }
+
+    /**
+     * The title for the page's <title> tag, falling back to the post title.
+     *
+     * @return string
+     */
+    public function getPageTitleAttribute()
+    {
+        return ($this->meta['page_title'] ?? null) ?: $this->title;
+    }
+
+    /**
+     * A srcset of the featured image's rendered sizes, if it was prepared.
+     *
+     * @return string|null
+     */
+    public function getFeaturedImageSrcsetAttribute()
+    {
+        $variants = $this->featured_image_meta['variants'] ?? [];
+
+        if (! $variants) {
+            return null;
+        }
+
+        ksort($variants);
+
+        return collect($variants)->map(function ($url, $width) {
+            return "{$url} {$width}w";
+        })->implode(', ');
     }
 
     /**

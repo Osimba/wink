@@ -41,11 +41,17 @@
                     author_id: '',
                     featured_image: '',
                     featured_image_caption: '',
+                    featured_image_original: null,
+                    featured_image_source_url: null,
+                    featured_image_credit: '',
+                    featured_image_alt: '',
+                    featured_image_meta: null,
                     body: '',
                     published: false,
                     markdown: ({null: null, 'markdown' : true, 'rich': false})[window.Wink.default_editor],
                     publish_date: '',
                     meta: {
+                        page_title: '',
                         meta_description: '',
                         opengraph_title: '',
                         opengraph_description: '',
@@ -112,6 +118,18 @@
         computed: {
             postPreviewLink() {
                 return this.Wink.preview_path.replace('{postSlug}', this.form.slug);
+            },
+
+            featuredImage() {
+                return {
+                    url: this.form.featured_image,
+                    caption: this.form.featured_image_caption,
+                    original: this.form.featured_image_original,
+                    source_url: this.form.featured_image_source_url,
+                    credit: this.form.featured_image_credit,
+                    alt: this.form.featured_image_alt,
+                    meta: this.form.featured_image_meta,
+                };
             }
         },
 
@@ -157,7 +175,13 @@
                     this.form.author_id = data.author_id || '';
                     this.form.featured_image = data.featured_image;
                     this.form.featured_image_caption = data.featured_image_caption;
+                    this.form.featured_image_original = data.featured_image_original;
+                    this.form.featured_image_source_url = data.featured_image_source_url;
+                    this.form.featured_image_credit = data.featured_image_credit || '';
+                    this.form.featured_image_alt = data.featured_image_alt || '';
+                    this.form.featured_image_meta = data.featured_image_meta;
                     this.form.meta = {
+                        page_title: data.meta.page_title || '',
                         meta_description: data.meta.meta_description || '',
                         opengraph_title: data.meta.opengraph_title || '',
                         opengraph_description: data.meta.opengraph_description || '',
@@ -265,9 +289,20 @@
             /**
              * Handle the change event of featured images.
              */
-            featuredImageChanged({url, caption}) {
-                this.form.featured_image = url;
+            featuredImageChanged({url, caption, original, source_url, credit, alt, meta}) {
                 this.form.featured_image_caption = caption;
+                this.form.featured_image_original = original;
+                this.form.featured_image_source_url = source_url;
+                this.form.featured_image_credit = credit;
+                this.form.featured_image_alt = alt;
+                this.form.featured_image_meta = meta;
+
+                // Changing the URL triggers a save; save anyway if only the details changed.
+                if (this.form.featured_image === url) {
+                    this.save();
+                }
+
+                this.form.featured_image = url;
             },
 
 
@@ -277,6 +312,11 @@
             featuredImageRemoved() {
                 this.form.featured_image = null;
                 this.form.featured_image_caption = null;
+                this.form.featured_image_original = null;
+                this.form.featured_image_source_url = null;
+                this.form.featured_image_credit = '';
+                this.form.featured_image_alt = '';
+                this.form.featured_image_meta = null;
             },
 
 
@@ -444,6 +484,17 @@
         <!-- General Settings Modal -->
         <modal v-if="settingsModalShown" @close="closeSettingsModal">
             <div class="input-group pt-0">
+                <label for="page_title" class="input-label">Page Title</label>
+                <input type="text" class="input"
+                       v-model="form.meta.page_title"
+                       :placeholder="form.title"
+                       id="page_title">
+                <p class="text-xs text-light mt-2">The browser tab and search result title. Leave blank to use the post title.</p>
+
+                <form-errors :errors="errors['meta.page_title']"></form-errors>
+            </div>
+
+            <div class="input-group">
                 <label for="slug" class="input-label">Slug</label>
                 <input type="text" class="input"
                        v-model="form.slug"
@@ -517,8 +568,7 @@
         <featured-image-uploader :post-id="this.form.id"
                                  @changed="featuredImageChanged"
                                  @removed="featuredImageRemoved"
-                                 :current-image-url="form.featured_image"
-                                 :current-caption="form.featured_image_caption"></featured-image-uploader>
+                                 :current="featuredImage"></featured-image-uploader>
     </div>
 </template>
 

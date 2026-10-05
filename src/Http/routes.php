@@ -1,5 +1,6 @@
 <?php
 
+use Wink\Http\Controllers\FeaturedImagesController;
 use Wink\Http\Controllers\ImageUploadsController;
 use Wink\Http\Controllers\LoginController;
 use Wink\Http\Controllers\PagesController;
@@ -28,6 +29,13 @@ Route::delete('/api/team/{id}', [TeamController::class, 'delete'])->name('team.d
 
 // Blog Image Uploads
 Route::post('/api/uploads', [ImageUploadsController::class, 'upload'])->name('images.store');
+Route::post('/api/uploads/from-url', [ImageUploadsController::class, 'fromUrl'])->name('images.from-url');
+
+// Featured Images...
+Route::post('/api/featured-images/sources', [FeaturedImagesController::class, 'storeSource'])->name('featured-images.sources.store');
+Route::get('/api/featured-images/sources/{source}', [FeaturedImagesController::class, 'showSource'])->name('featured-images.sources.show');
+Route::post('/api/featured-images/preview', [FeaturedImagesController::class, 'preview'])->name('featured-images.preview');
+Route::post('/api/featured-images', [FeaturedImagesController::class, 'store'])->name('featured-images.store');
 
 // Blog Pages...
 Route::get('/api/pages', [PagesController::class, 'index'])->name('pages.index');

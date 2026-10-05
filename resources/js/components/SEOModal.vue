@@ -109,7 +109,8 @@
 
                     <image-picker class="mt-4 mb-1"
                                   @changed="updateFacebookImage"
-                                  @uploading="facebookImageUploading = true"></image-picker>
+                                  @uploading="facebookImageUploading = true"
+                                  @failed="facebookImageUploading = false"></image-picker>
                 </div>
 
                 <preloader v-if="facebookImageUploading"></preloader>
@@ -158,7 +159,8 @@
 
                     <image-picker class="mt-4 mb-1"
                                   @changed="updateTwitterImage"
-                                  @uploading="twitterImageUploading = true"></image-picker>
+                                  @uploading="twitterImageUploading = true"
+                                  @failed="twitterImageUploading = false"></image-picker>
                 </div>
 
                 <preloader v-if="twitterImageUploading"></preloader>
